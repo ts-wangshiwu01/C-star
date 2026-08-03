@@ -20,7 +20,7 @@ C-Star 是公司级员工赞赏平台。为支撑 PRD 描述的功能,采用微�
 | **部署** | Kubernetes | 跟现有项目一致,复用 ArgoCD GitOps 流程 |
 | **定时任务** | xxl-job | 可视化调度,内置失败重试,直接配 Cron + 时区不用换算 UTC |
 | **SSO** | 公司 ALDP | 复用公司单点登录,不自己实现认证 |
-| **前端** | 待定 | 倾向 React + shadcn/ui 或 Vue + Element Plus |
+| **前端** | Vue 3 + Element Plus | 简单 CRUD 场景开箱即用,上手快,详见 [ADR-0007](../docs/adr/0007-frontend-vue3-element-plus.md) |
 
 ## 3. 架构图
 
