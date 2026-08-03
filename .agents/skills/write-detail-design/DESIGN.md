@@ -25,15 +25,14 @@
 name: write-detail-design
 description: Use when the user explicitly asks to write a detailed design / detail design
   for a code change requirement — phrases like "写详细设计", "做 detail design",
-  "设计一下这个需求", "write detail design for X". This is the Design stage of the
-  ai-platform workflow (Understand → Design → Develop). Produces a 4-section design
+  "设计一下这个需求", "write detail design for X". Produces a 4-section design
   doc (name / change points / As-Is & To-Be / tests) saved to
-  feature/detail-design/. Reads architecture/ and actual code under .microservices/
+  feature/detail-design/. Reads architecture/ and actual source code
   to ground As-Is in reality. Do NOT trigger for casual bug fixes or quick edits —
   only for formal design work the user explicitly requests.
 ```
 
-- **位置**: `.opencode/skills/write-detail-design/SKILL.md`（沿用本仓库 skills 目录约定）
+- **位置**: `.agents/skills/write-detail-design/SKILL.md`
 - **触发**: 仅显式 —— 用户明说要写设计时
 - **输出**: `feature/detail-design/<ticket>-<slug>.md`，ticket 必填
 
@@ -96,12 +95,12 @@ description: Use when the user explicitly asks to write a detailed design / deta
 0. 向用户索取 ticket 号（硬前置，无 ticket 不开工）
    - 同时收集：需求描述、改动位置线索（哪个 service / 哪个类或文件）
    - 若用户不知道改动位置 → 先读 architecture/ 基于需求关键词推断候选位置 → 向用户确认后再继续
-1. 读 architecture/ 全部文件（AGENT.md 硬性要求，不可省）—— detail design 的上下文基础：
-   - **high level 架构设计**：`architecture/paas-architecture.md` 中的组件关系与职责划分
+1. 读 architecture/ 全部文件 —— detail design 的上下文基础：
+   - **high level 架构设计**：`architecture/*.md` 中的组件关系与职责划分
    - **涉及服务的流程图与调用关系**：同文件的 mermaid 图，是 As-Is 调用链的权威来源
    - 依赖以上两者 + 用户需求三者共同作为设计输入，确保设计文档准确
-2. 确认涉及服务已在 .microservices/ 下
-   - 没在 → 提示用户跑 clone-services-from-init skill，停止
+2. 确认涉及源码存在
+   - 不存在 → 提示用户确认代码位置或先完成源码搭建，停止
 3. 读用户指出的代码文件
 4. 追踪直接调用链（只一层）：
    - 谁调用它（grep 符号引用）
@@ -121,12 +120,12 @@ description: Use when the user explicitly asks to write a detailed design / deta
 
 ## 4. What NOT to Do
 
-- ❌ 不读 `architecture/` 就动手（违反 AGENT.md）
-- ❌ 在 `.microservices/` 缺服务时不提示、自己偷偷 clone（应让用户走 clone-services-from-init skill）
+- ❌ 不读 `architecture/` 就动手
+- ❌ 在源码不存在时不提示、自己偷偷创建（应让用户确认代码位置或先完成源码搭建）
 - ❌ 调用链追超过一层（hybrid 模式不要变全链路深挖）
 - ❌ 在 4 段之外加段（决策点/风险/开发步骤等 —— 用户明确要极简）
 - ❌ 改动点里写没读过的文件/类（每条必须经代码验证存在）
-- ❌ 把设计文档写到 `.microservices/` 里（设计是仓库元数据，代码是临时工作区）
+- ❌ 把设计文档写到源码目录里（设计是仓库元数据，代码是工作区）
 - ❌ 没 ticket 就开工（ticket 是硬前置）
 
 ---
