@@ -1,0 +1,176 @@
+# 场景 2 规范 — 外部仓库研读
+
+**适用**：把一个不熟悉的第三方/开源仓库读透，产出可跨会话复用的研读笔记库。
+
+**产物形态**：8-12 份主题 .md + README.md 索引，每份 5-15KB，每条 claim 带 `src/path:line` 锚点。
+
+---
+
+## 1. 目录结构
+
+**研读笔记放在仓库外的平行目录**，不放在仓库内：
+
+```
+~/workspace/<repo-name>-research/
+├── README.md              # 索引 + 结构图
+├── 00-overview.md         # 仓库身份 / 版本 / 来源 / 依赖
+├── 01-architecture.md     # 顶层布局 + 核心数据流
+├── 02-build-system.md     # 构建脚本 / feature flags / 宏
+├── 03-<subsystem-A>.md    # 一个子系统一份
+├── 04-<subsystem-B>.md
+├── ...
+└── NN-warnings.md         # 风险 / 未验证声明 / 法律姿态
+```
+
+**03+ 子系统文件按项目类型选关注点划分**（详见 `method-research.md` Step 5 的划分规则）：
+
+| 项目类型 | 03+ 关注点参考 |
+|---------|---------------|
+| CLI / 开发工具 | commands / tools / plugins / services |
+| 后端 API | api-routes / database-layer / middleware / service-layer / config / error-handling / security |
+| 前端 SPA | routing / state-management / component-hierarchy / api-client / styling / build-system |
+| Monorepo | 前后端各走对应模板，00-overview 额外记录 monorepo 工具和包间依赖 |
+
+**划分原则**："一个子系统 = 一个可独立阅读的关注点"，不是"一个目录 = 一份文件"。文件数 8-12 是目标不是硬限制。
+
+**为什么放仓库外**：
+- 仓库可能有 `npm install` / `cargo build` 之类的语义，被散落的 `.md` 文件污染
+- 上游仓库被误推东西会污染它
+- 重新 clone 时，"研究"和"事实"分离更干净
+
+---
+
+## 2. 文件命名
+
+- `00-overview.md` — 身份/版本/来源
+- `01-architecture.md` — 顶层布局 + 数据流
+- `02-build-system.md` — 代码如何变成二进制
+- `03-NN-<topic>.md` — 一个子系统一份，按依赖顺序
+
+**不要写中文文件名**（避免 URL 编码问题）
+
+---
+
+## 3. 每个文件必须包含的内容
+
+### 3.1 主题清晰的章节结构
+
+- H1：文件标题
+- H2：主要章节
+- H3：子章节
+- **枚举用表格优先于项目符号**
+
+### 3.2 源码锚点（最关键）
+
+**每一条事实性主张必须带 `src/path:line` 锚点**：
+
+```markdown
+The `feature()` helper (from `bun:bundle`) gates compile-time code elimination — see `scripts/build.ts:13-50`.
+
+The Bash tool lives at `src/tools/BashTool/BashTool.tsx` (来源：`src/commands.ts:194`)
+```
+
+**这是研读笔记的灵魂** — 没了锚点，文档就只是散文，未来无法验证或扩展。
+
+### 3.3 末尾的"我还没知道的（待研究）"
+
+每个文件结尾**必须**包含：
+
+```markdown
+## 我还不知道的（待研究）
+
+- [ ] <具体的、可下一步操作的问题，附目标路径>
+- [ ] <另一个缺口>
+```
+
+**纪律**：
+- 项目用具体动词（"How does `QueryEngine` validate input before passing to tools?"）
+- 不要写模糊愿望（"More research needed"）
+- 这是**自扩展接口** — 下次会话读到这里就知道该挖哪里
+
+---
+
+## 4. README.md（索引）必须包含
+
+1. **每个文件的 1 行 "何时读它" 说明**
+2. **关键源文件链接 + 角色**（如 `src/entrypoints/cli.tsx` = CLI 入口）
+3. **关键统计**：文件数 / 行数 / 命令数 / 工具数（让用户能 `ls -la` 和 `wc -l` 自查）
+4. **研究时间戳 + 仓库 HEAD SHA**（让未来会话知道笔记新鲜度）
+
+```markdown
+> 研究完成时间：YYYY-MM-DD
+> 仓库 HEAD SHA：<sha>
+```
+
+---
+
+## 5. 引用格式约定
+
+**行内引用**：
+```markdown
+The `feature()` helper ... see `scripts/build.ts:13-50`.
+```
+
+**段落引用**：
+```markdown
+来源：`src/commands.ts:194`
+```
+
+**README 引用**：标 README 行号 `README.md:42`
+
+---
+
+## 6. Pitfalls
+
+### 6.1 不要相信 README 的营销话术
+
+Fork 经常声称 "telemetry removed"，但 `package.json` 里 `@opentelemetry/*` 依赖还在（DCE 编译期移除，并未真正删除）。**总要交叉核对 `package.json`、注册表、源代码**。
+
+### 6.2 不要通过读每个文件来枚举子系统
+
+用 `search_files(target='files')` 扫描目录得文件清单，**只读注册表/manifest**（如 `commands.ts` + `tools.ts`）— 它们用 `memoize(() => [...])` 或 `getAllBaseTools()` 枚举了所有项。
+
+### 6.3 不要写 50KB 的超大文档
+
+按关注点拆 8-12 份。未来会话 `read_file` 只需读相关那份。
+
+### 6.4 不要在研究笔记中放入宿主项目的外推结论
+
+**这是最严重的失败模式**：研究完外部仓库 → 给宿主项目出 P0/P1/P2 优先级列表 — **永远不要**这样。
+
+
+### 6.5 不要丢失源码路径
+
+当写 "The Bash tool lives at src/tools/BashTool/BashTool.tsx" 时，源路径就是这份文档有用的锚点。没有它，文档只是散文。
+
+### 6.6 不要跨文件重复同一事实
+
+如果构建系统在 `02-build-system.md` 描述，subsystem 文件应该**引用**它，不重写。
+
+### 6.7 后端 API：不要忽略 OpenAPI/Swagger spec
+
+如果项目有 `openapi.yaml` / `swagger.json` / `OpenAPI.java`，**它比源码更权威**——API 契约文档定义了端点的参数、响应模型、状态码，源码只是实现。先读 spec 再读源码，避免从路由代码逆向推导契约。
+
+### 6.8 后端 API：不要忽略数据库 schema / migrations
+
+后端项目的数据库层是核心子系统之一。不要只读 ORM model 文件就跳过——`migrations/` 目录里的 DDL 文件记录了 schema 演化历史，能发现 model 文件中看不到的索引策略、约束变化、废弃表。
+
+### 6.9 后端 API：不要只看路由不看中间件 pipeline
+
+后端请求的处理链路（auth → validation → rate-limit → controller → error-handler）决定了 API 的实际行为。只读路由和 controller 会漏掉认证逻辑、输入校验规则、错误处理策略。中间件注册处（如 Express 的 `app.use()` 链、Spring Boot 的 `WebMvcConfigurer`、Django 的 `MIDDLEWARE` 列表）必须单独读。
+
+### 6.10 前端 SPA：不要忽略状态管理的读写边界
+
+只读 store 定义会漏掉"谁在写、谁在读"的依赖关系。要追踪每个 state slice 的 dispatch/reducer/selector 三元组，标注哪些组件订阅了哪些 slice——这是理解前端数据流的关键。
+
+### 6.11 前端 SPA：不要把路由文件读一遍就跳过
+
+前端路由不只是 URL→组件映射。路由守卫（`beforeEach` / `onEnter`）里的权限逻辑、懒加载策略（`React.lazy` / `defineAsyncComponent`）的 chunk splitting 策略、嵌套路由的布局组件——这些都在路由配置里，值得单独成文。
+
+---
+
+## 7. 完成后必做
+
+- 用 `scripts/check_source_anchors.py` 校验每个文件的源码锚点覆盖率（建议 ≥ 80% 的事实性主张带锚点）
+- 检查文件数 = 8-12 份（不能是 1 个超大或 30 个超小）
+- README 含 HEAD SHA 和时间戳
