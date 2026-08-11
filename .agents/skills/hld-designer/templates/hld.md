@@ -45,24 +45,35 @@ graph TD
 
 ## 3. 业务流程概览
 
-{{用 mermaid flowchart 画出项目核心业务主流程——从用户触发到最终结果，跨服务串联。
-体现整个系统"做什么"的全景，不深入单个接口细节（接口级设计在 Design 文档）。
-让读者看完这图就能理解项目的业务脉络。}}
+> **本节的定位**：告诉读者"本次涉及哪些接口/任务，各干啥"。
+> **不做**：不列具体校验规则、不画校验分支、不写错误码——这些在 Design §5 关键校验与错误码。
+> **原因**：HLD 是项目级全景，规则/错误码是 detail design 的内容。混在这里会污染流程图，还会因规则变动频繁重画 HLD。
+
+### 3.1 本次涉及的接口 / 任务清单
+
+{{一个表格列出所有接口/任务，每个一句话说明"输入 → 主要处理 → 输出"，不展开校验细节。}}
+
+| # | 名称 | 类型 | 所属服务 | 一句话说明 | 详细设计 |
+|---|---|---|---|---|---|
+| 1 | {{发送赞赏}} | api | {{core-service}} | {{Giver 提交给 Receiver 送 N 朵红花 → 业务校验 → 原子事务扣配额+写记录+更榜 → 返回确认}} | `feature/detail-design/<ticket>-*.md` |
+| 2 | {{每日配额重置}} | batch | {{core-service}} | {{xxl-job 00:00 CT 触发 → 全员 period_quota 重置为默认配额 → 未用不结转}} | `feature/detail-design/<ticket>-*.md` |
+| 3 | {{...}} | {{api/batch/worker}} | {{...}} | {{...}} | {{...}} |
+
+### 3.2 跨服务编排图（可选，画极简版）
+
+{{只在有跨服务调用编排需要说清楚时才画。图里只体现"哪个服务调哪个服务、走什么协议"，禁画任何判断分支。
+如果一个接口从头到尾就在一个服务里跑完，本图可省略。}}
 
 ```mermaid
-flowchart TD
-    Start[{{业务流程起点}}] --> Step1[{{步骤1<br/>涉及哪些服务}}]
-    Step1 --> Step2[{{步骤2<br/>涉及哪些服务}}]
-    Step2 --> Decision{{{分支判断}}}
-    Decision -->|分支A| Step3[{{步骤3}}]
-    Decision -->|分支B| Step4[{{步骤4}}]
-    Step3 --> End[{{业务流程终点}}]
-    Step4 --> End
+flowchart LR
+    U[用户/浏览器] -->|REST| GW[API Gateway]
+    GW -->|gRPC| S1[Service A]
+    S1 -->|gRPC| S2[Service B]
+    S1 -->|JDBC| DB[(DB)]
 ```
 
-**流程说明**：
-{{对流程图中的关键步骤做简要文字说明，标明每步涉及哪些服务。
-如"步骤1：用户登录 → API Gateway 验证 SSO → Core Service 懒同步员工记录"。}}
+> 【禁】流程图里出现 `if 校验通过 / else 拒绝`、`Receiver 存在?`、`配额足够?` 这类判断节点。
+> 有校验 → 用一个节点"业务校验（详见 Design §5）"带过，不展开。
 
 ## 4. 服务清单与定位
 
@@ -81,9 +92,9 @@ flowchart TD
 
 **入口类型说明**：
 
-- **API 入口**：{{同步请求/响应，一句话说明这个服务的 API 干啥}}。详细设计见 `{{PROJECT}}_design_api_{{service}}_v1.0_*.md`
-- **Batch 入口**：{{定时批处理，一句话说明这个服务的定时任务干啥}}。详细设计见 `{{PROJECT}}_design_batch_{{service}}_v1.0_*.md`
-- **Worker 入口**：{{异步消息消费，一句话说明这个服务消费什么消息}}。详细设计见 `{{PROJECT}}_design_worker_{{service}}_v1.0_*.md`
+- **API 入口**：{{同步请求/响应，一句话说明这个服务的 API 干啥}}。详细设计见 `feature/detail-design/<ticket>-*.md`
+- **Batch 入口**：{{定时批处理，一句话说明这个服务的定时任务干啥}}。详细设计见 `feature/detail-design/<ticket>-*.md`
+- **Worker 入口**：{{异步消息消费，一句话说明这个服务消费什么消息}}。详细设计见 `feature/detail-design/<ticket>-*.md`
 
 > 只列出本服务实际有的入口类型，没有的删掉。
 

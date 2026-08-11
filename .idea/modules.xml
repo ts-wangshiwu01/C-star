@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/C-star.iml" filepath="$PROJECT_DIR$/.idea/C-star.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/c-star-core-service/c-star.c-star-core-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/c-star-core-service/c-star.c-star-core-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/c-star-proto/c-star.c-star-proto.main.iml" filepath="$PROJECT_DIR$/.idea/modules/c-star-proto/c-star.c-star-proto.main.iml" />
     </modules>
   </component>
 </project>
