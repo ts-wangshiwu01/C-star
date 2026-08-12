@@ -19,9 +19,7 @@ class EmployeeTest {
 
     @Test
     void constructorSetsAllFields() {
-        Instant before = Instant.now();
         Employee emp = new Employee(1L, "alice", "Alice", Instant.parse("2026-08-12T00:00:00Z"), Instant.parse("2026-08-12T00:00:00Z"));
-        Instant after = Instant.now();
 
         assertThat(emp.id()).isEqualTo(1L);
         assertThat(emp.ssoId()).isEqualTo("alice");
