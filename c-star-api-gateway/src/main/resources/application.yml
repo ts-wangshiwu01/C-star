@@ -17,6 +17,12 @@ micronaut:
               secret: ${JWT_SECRET:please-override-in-prod}
         enabled: true
 
+# C-Star business config
+cstar:
+  sso:
+    jwks-url: ${ALDP_JWKS_URL:https://sso.example.com/.well-known/jwks.json}
+    issuer: ${ALDP_ISSUER:https://sso.example.com}
+
 cstar-core:
   grpc:
     host: localhost
