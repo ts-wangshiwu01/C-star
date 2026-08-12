@@ -27,9 +27,20 @@ import java.util.Objects;
  *   <li>Issuer must match {@code cstar.sso.issuer} from config</li>
  * </ul>
  *
- * <p>Production: trusted key is fetched from {@code cstar.sso.jwks-url} (ALDP JWKS endpoint).
- * For testing: {@link #setTrustedVerificationKey(JWK)} injects a test public key directly,
- * bypassing the JWKS fetch (avoids network dependency in unit tests).</p>
+ * <p>Two verification modes, selected by {@code cstar.sso.mode}:</p>
+ * <ul>
+ *   <li><b>{@code mock}</b> (default, local/dev): the trusted public key is loaded once at
+ *       construction from {@code cstar.sso.mock.jwk} in application.yml. No network call.
+ *       A complete RSA JWK (private+public) is shipped in application.yml so local devs can
+ *       also sign test JWTs with the same key; this verifier uses only the public part.</li>
+ *   <li><b>{@code aldp}</b> (production): trusted key is fetched from
+ *       {@code cstar.sso.jwks-url} (ALDP JWKS endpoint). <b>NOT YET IMPLEMENTED</b> —
+ *       {@link #verifySignature(SignedJWT)} throws a clear error in this mode.</li>
+ * </ul>
+ *
+ * <p>For unit tests: {@link #setTrustedVerificationKey(JWK)} overrides the trusted key
+ * directly, bypassing both modes (used by {@code SsoJwtVerifierTest} to inject a fresh
+ * throwaway key pair).</p>
  *
  * <p>Any failure (bad signature, expiry, missing claim, wrong issuer) throws
  * {@link InvalidJwtException}, which the {@code LoginController} maps to
@@ -39,13 +50,49 @@ import java.util.Objects;
 public class SsoJwtVerifier {
 
     private final String expectedIssuer;
+    private final String mode;
     private volatile RSAKey trustedKey;
 
     /**
      * @param expectedIssuer the ALDP issuer URL (from {@code cstar.sso.issuer}); never null
+     * @param mode           verification mode: {@code mock} or {@code aldp}
+     *                       (from {@code cstar.sso.mode}); never null
+     * @param mockJwkJson    RSA JWK JSON for mock mode (from {@code cstar.sso.mock.jwk});
+     *                       may be null when {@code mode=aldp}
      */
-    public SsoJwtVerifier(@Value("${cstar.sso.issuer}") String expectedIssuer) {
+    public SsoJwtVerifier(
+            @Value("${cstar.sso.issuer}") String expectedIssuer,
+            @Value("${cstar.sso.mode:mock}") String mode,
+            @Value("${cstar.sso.mock.jwk:}") String mockJwkJson) {
         this.expectedIssuer = Objects.requireNonNull(expectedIssuer, "cstar.sso.issuer must be configured");
+        this.mode = Objects.requireNonNull(mode, "cstar.sso.mode must be configured").trim().toLowerCase();
+
+        if ("mock".equals(this.mode)) {
+            if (mockJwkJson == null || mockJwkJson.isBlank()) {
+                throw new IllegalStateException(
+                        "cstar.sso.mode=mock but cstar.sso.mock.jwk is not configured");
+            }
+            this.trustedKey = parseMockKey(mockJwkJson);
+        } else if (!"aldp".equals(this.mode)) {
+            throw new IllegalStateException(
+                    "cstar.sso.mode must be 'mock' or 'aldp', got: " + this.mode);
+        }
+        // mode=aldp: trustedKey stays null; verifySignature() will throw a clear error
+        // (JWKS fetch not yet implemented).
+    }
+
+    private static RSAKey parseMockKey(String jwkJson) {
+        try {
+            JWK parsed = JWK.parse(jwkJson);
+            if (!(parsed instanceof RSAKey rsaKey)) {
+                throw new IllegalStateException(
+                        "cstar.sso.mock.jwk must be an RSA JWK, got: " + parsed.getKeyType());
+            }
+            return rsaKey.toPublicJWK();
+        } catch (ParseException e) {
+            throw new IllegalStateException(
+                    "cstar.sso.mock.jwk is not a valid JWK: " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -96,7 +143,9 @@ public class SsoJwtVerifier {
     private void verifySignature(SignedJWT jwt) {
         RSAKey key = this.trustedKey;
         if (key == null) {
-            throw new InvalidJwtException("No trusted verification key configured (JWKS fetch not yet implemented)");
+            throw new InvalidJwtException(
+                    "No trusted verification key configured (mode=" + mode
+                            + "; aldp JWKS fetch not yet implemented)");
         }
         JWSVerifier verifier;
         try {
