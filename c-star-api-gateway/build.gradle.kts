@@ -32,6 +32,9 @@ dependencies {
     implementation("io.micronaut:micronaut-inject")
     implementation("io.micronaut:micronaut-http-server-netty")
     implementation("io.micronaut:micronaut-http-client")
+    // Jackson serialization (required by HTTP server's JsonMessageHandler)
+    implementation("io.micronaut.serde:micronaut-serde-jackson")
+    annotationProcessor("io.micronaut.serde:micronaut-serde-processor")
 
     // gRPC client (correct artifact name per Micronaut 4 docs)
     implementation("io.micronaut.grpc:micronaut-grpc-client-runtime")
