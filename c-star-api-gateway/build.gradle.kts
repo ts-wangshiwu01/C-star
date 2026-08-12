@@ -24,14 +24,17 @@ micronaut {
 }
 
 dependencies {
+    // Shared proto stubs (SsoLoginRpc, etc.)
+    implementation(project(":c-star-proto"))
+
     // Micronaut core
     annotationProcessor("io.micronaut:micronaut-inject-java")
     implementation("io.micronaut:micronaut-inject")
     implementation("io.micronaut:micronaut-http-server-netty")
     implementation("io.micronaut:micronaut-http-client")
 
-    // gRPC client (to call core-service)
-    implementation("io.micronaut.grpc:micronaut-grpc-runtime")
+    // gRPC client (correct artifact name per Micronaut 4 docs)
+    implementation("io.micronaut.grpc:micronaut-grpc-client-runtime")
 
     // JWT validation (SSO)
     implementation("io.micronaut.security:micronaut-security-jwt")
@@ -41,7 +44,7 @@ dependencies {
     implementation("io.micronaut.validation:micronaut-validation")
     implementation("jakarta.validation:jakarta.validation-api")
 
-    // YAML config parsing (application.yml)
+    // YAML config parsing
     runtimeOnly("org.yaml:snakeyaml")
 
     // Test

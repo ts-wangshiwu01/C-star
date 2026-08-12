@@ -24,6 +24,9 @@ micronaut {
 }
 
 dependencies {
+    // Shared proto stubs (SsoLoginRpc, etc.)
+    implementation(project(":c-star-proto"))
+
     // Micronaut core
     annotationProcessor("io.micronaut:micronaut-inject-java")
     annotationProcessor("io.micronaut.validation:micronaut-validation-processor")
@@ -36,8 +39,8 @@ dependencies {
     implementation("io.micronaut.sql:micronaut-jdbc-hikari")
     runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
 
-    // gRPC
-    implementation("io.micronaut.grpc:micronaut-grpc-runtime")
+    // gRPC server (correct artifact name per Micronaut 4 docs)
+    implementation("io.micronaut.grpc:micronaut-grpc-server-runtime")
 
     // Flyway migration
     implementation("io.micronaut.flyway:micronaut-flyway")
@@ -46,7 +49,7 @@ dependencies {
     // Validation + runtime
     implementation("jakarta.validation:jakarta.validation-api")
 
-    // YAML config parsing (application.yml)
+    // YAML config parsing
     runtimeOnly("org.yaml:snakeyaml")
 
     // Transaction
