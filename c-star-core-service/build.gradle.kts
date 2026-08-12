@@ -32,6 +32,9 @@ dependencies {
     annotationProcessor("io.micronaut.validation:micronaut-validation-processor")
     implementation("io.micronaut:micronaut-inject")
     implementation("io.micronaut.validation:micronaut-validation")
+    // Jackson serialization (required by HTTP server's HateoasErrorResponseProcessor)
+    implementation("io.micronaut.serde:micronaut-serde-jackson")
+    annotationProcessor("io.micronaut.serde:micronaut-serde-processor")
 
     // Data JDBC
     annotationProcessor("io.micronaut.data:micronaut-data-processor")

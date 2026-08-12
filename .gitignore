@@ -16,6 +16,10 @@ bin/
 .factorypath
 out/
 
+# Test resources with local credentials — never commit
+**/src/test/resources/application-test.yml
+**/src/test/resources/application-*.yml
+
 # OS
 .DS_Store
 

@@ -30,7 +30,8 @@ protobuf {
     //noinspection GrUnresolvedAccess
     plugins {
         create("grpc") {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.65.1"
+            // Must align with grpc-core version pulled by micronaut-grpc-server-runtime:4.4.1 (→ grpc 1.62.2)
+            artifact = "io.grpc:protoc-gen-grpc-java:1.62.2"
         }
     }
     generateProtoTasks {
@@ -44,8 +45,9 @@ protobuf {
 }
 
 dependencies {
-    api("io.grpc:grpc-stub:1.65.1")
-    api("io.grpc:grpc-protobuf:1.65.1")
+    // Align with Micronaut gRPC BOM (micronaut-grpc-server-runtime:4.4.1 → grpc 1.62.2)
+    api("io.grpc:grpc-stub:1.62.2")
+    api("io.grpc:grpc-protobuf:1.62.2")
     api("com.google.protobuf:protobuf-java:3.25.5")
     compileOnly("javax.annotation:javax.annotation-api:1.3.2")
 }
