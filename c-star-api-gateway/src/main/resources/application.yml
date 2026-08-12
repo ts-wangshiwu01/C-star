@@ -1,0 +1,33 @@
+micronaut:
+  application:
+    name: c-star-api-gateway
+  server:
+    port: 8080
+  grpc:
+    client:
+      plaintext: true
+  security:
+    enabled: true
+    authentication: bearer
+    token:
+      jwt:
+        signatures:
+          secret:
+            generator:
+              secret: ${JWT_SECRET:please-override-in-prod}
+        enabled: true
+
+cstar-core:
+  grpc:
+    host: localhost
+    port: 9080
+
+# Phase 2
+cstar-admin:
+  grpc:
+    host: localhost
+    port: 9090
+
+logger:
+  levels:
+    com.cstar: DEBUG
