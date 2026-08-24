@@ -1,0 +1,12 @@
+[
+  { "employeeId": 1, "displayName": "林晓", "ssoId": "lin.xiao" },
+  { "employeeId": 2, "displayName": "陈雅", "ssoId": "chen.ya" },
+  { "employeeId": 3, "displayName": "梁博", "ssoId": "liang.bo" },
+  { "employeeId": 4, "displayName": "阮卡拉", "ssoId": "ruan.kala" },
+  { "employeeId": 5, "displayName": "迭戈", "ssoId": "diego.santos" },
+  { "employeeId": 6, "displayName": "朴恩智", "ssoId": "piao.enzhi" },
+  { "employeeId": 7, "displayName": "法拉", "ssoId": "fala.idris" },
+  { "employeeId": 8, "displayName": "加百列", "ssoId": "gabriel.okafor" },
+  { "employeeId": 9, "displayName": "田中雏", "ssoId": "hina.tanaka" },
+  { "employeeId": 10, "displayName": "伊万", "ssoId": "ivan.petrov" }
+]

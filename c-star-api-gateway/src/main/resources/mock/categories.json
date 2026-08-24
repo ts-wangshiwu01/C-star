@@ -1,0 +1,7 @@
+[
+  { "id": 1, "name": "团队协作", "description": "推动团队一起向前。" },
+  { "id": 2, "name": "卓越品质", "description": "交付了 noticeably 高质量的工作。" },
+  { "id": 3, "name": "创新探索", "description": "找到了更好的做事方法。" },
+  { "id": 4, "name": "客户为先", "description": "真正把客户放在第一位。" },
+  { "id": 5, "name": "超越预期", "description": "做了超出分内的事。" }
+]

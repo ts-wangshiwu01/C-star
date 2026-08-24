@@ -3,11 +3,35 @@ micronaut:
     name: c-star-api-gateway
   server:
     port: 8080
+    cors:
+      enabled: true
+      configurations:
+        all:
+          allowedOrigins:
+            - http://localhost:5173
+            - http://127.0.0.1:5173
+          allowedMethods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          allowedHeaders:
+            - Authorization
+            - Content-Type
+            - X-Requested-With
+          exposedHeaders:
+            - Content-Disposition
+          allowCredentials: true
+          maxAge: 3600
   grpc:
     client:
       plaintext: true
   security:
-    enabled: true
+    # Dev: mock mode returns fake data and LoginController bypasses JWT, so the
+    # security filter is disabled during front-end/gateway integration. Re-enable
+    # before production.
+    enabled: false
     authentication: bearer
     token:
       jwt:
@@ -19,6 +43,10 @@ micronaut:
 
 # C-Star business config
 cstar:
+  mock:
+    # Dev mock mode: the gateway returns in-memory mock data and the login flow
+    # bypasses JWT verify + core-service gRPC. Set to false to use real flows.
+    enabled: ${CSTAR_MOCK_ENABLED:true}
   sso:
     # Verification mode:
     #   mock — use the locally configured RSA key below (no network). Default for dev/test.

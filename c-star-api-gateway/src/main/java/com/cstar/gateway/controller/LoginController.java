@@ -8,6 +8,7 @@ import com.cstar.gateway.security.SsoJwtVerifier;
 import com.cstar.sso.proto.SsoLoginErrorCode;
 import com.cstar.sso.proto.SsoLoginResponse;
 import io.grpc.StatusRuntimeException;
+import io.micronaut.context.annotation.Value;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -43,16 +44,30 @@ import java.util.Objects;
 @Controller("/api/v1")
 public class LoginController {
 
+    /** Mock current-user identity (林晓) returned by the dev mock bypass. */
+    private static final long ME_EMPLOYEE_ID = 1L;
+    private static final String ME_DISPLAY_NAME = "林晓";
+
     private final SsoJwtVerifier verifier;
     private final SsoLoginClient loginClient;
+    private final boolean mockMode;
 
-    public LoginController(SsoJwtVerifier verifier, SsoLoginClient loginClient) {
+    public LoginController(SsoJwtVerifier verifier, SsoLoginClient loginClient,
+                           @Value("${cstar.mock.enabled:true}") boolean mockMode) {
         this.verifier = Objects.requireNonNull(verifier, "verifier must not be null");
         this.loginClient = Objects.requireNonNull(loginClient, "loginClient must not be null");
+        this.mockMode = mockMode;
     }
 
     @Post("/login")
     public HttpResponse<?> login(@Header(HttpHeaders.AUTHORIZATION) String authHeader) {
+        // Mock bypass (dev): return the fixed fake user instead of JWT verify + gRPC.
+        // Enabled when cstar.mock.enabled=true (dev default). Guards SsoJwtVerifier and
+        // SsoLoginClient are fully wired for prod use — the original flow is untouched below.
+        if (mockMode) {
+            return HttpResponse.ok(new LoginResponse(ME_EMPLOYEE_ID, ME_DISPLAY_NAME, false));
+        }
+
         // 1. Extract the Bearer token.
         final String token;
         try {
