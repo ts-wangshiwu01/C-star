@@ -1,0 +1,77 @@
+micronaut:
+  application:
+    name: c-star-api-gateway
+  server:
+    port: 8080
+    cors:
+      enabled: true
+      configurations:
+        all:
+          allowedOrigins:
+            - http://localhost:5173
+            - http://127.0.0.1:5173
+          allowedMethods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          allowedHeaders:
+            - Authorization
+            - Content-Type
+            - X-Requested-With
+          exposedHeaders:
+            - Content-Disposition
+          allowCredentials: true
+          maxAge: 3600
+  grpc:
+    client:
+      plaintext: true
+  security:
+    # Dev: mock mode returns fake data and LoginController bypasses JWT, so the
+    # security filter is disabled during front-end/gateway integration. Re-enable
+    # before production.
+    enabled: false
+    authentication: bearer
+    token:
+      jwt:
+        signatures:
+          secret:
+            generator:
+              secret: ${JWT_SECRET:please-override-in-prod}
+        enabled: true
+
+# C-Star business config
+cstar:
+  mock:
+    # Dev mock mode: the gateway returns in-memory mock data and the login flow
+    # bypasses JWT verify + core-service gRPC. Set to false to use real flows.
+    enabled: ${CSTAR_MOCK_ENABLED:true}
+  sso:
+    # Verification mode:
+    #   mock — use the locally configured RSA key below (no network). Default for dev/test.
+    #   aldp — fetch ALDP JWKS from jwks-url at runtime (production; not yet implemented).
+    mode: ${CSTAR_SSO_MODE:mock}
+    jwks-url: ${ALDP_JWKS_URL:https://sso.example.com/.well-known/jwks.json}
+    issuer: ${ALDP_ISSUER:https://sso.example.com}
+    # Dev/test RSA key pair (read ONLY when mode=mock; production must set mode=aldp).
+    # Generated with nimbus-jose-jwt RSAKeyGenerator(2048), keyID=dev-mock-key-1.
+    # Private part is included so local devs can sign JWTs for manual testing;
+    # SsoJwtVerifier uses only the public part for verification.
+    mock:
+      jwk: '{"kty":"RSA","e":"AQAB","kid":"dev-mock-key-1","n":"kFVqWwJPTXnqtn_WW0R-K72bMvGLX8U3prKjcJJrr8-23VZd7266lMCeXZyzM7xOj6ITxMTllov8Lb4DO6M4CbZQubQp05BeEXI1mhEA3Nf7uylnInnWn2D7L4mY1AbEAGZI8E6FvH_QbwrYoiitvzO8F8rvrwXPY59wykxm5-jY9-jZbc5AZwGWEoJBU6jBKmpIeOSsHwjM0RiCBS1nKq1-bQJIf9Kcb76tIBwhhOFG3uUEo-4bORTQ_jdYzBfFmYvN-0cjeloINY1ctjtq3LGDPeY5s2vN-971Ejqm7GQvJLLaHH7vFTYQFtNF9x2QkJB7mh4DOeuqVrlzE-765Q","d":"I98Wr8fDLd4_F1xuSgCb2wMkr2SY3xSE4ElFlZTObsORDzGH5xn-BTpaIanwX8tNOyVtBFprNR9VbYjsBMZsBv3o0j6UpqAawPtBlyjirgB_7-Q6XbcqQDI6O3ZXJVsJG5BQUGkzk8WwZ-iqLqMti3ewJ7moGDe5c2kM_zo92SUGEIE2iebT5PeTpKrZeDaKvJ_UVMeUAWY7EEMbav1p6mirXqIBW77eqEkCNY_ml6I8uFLuapspgI0asMcZ5dkf-MwVWhIXIC3WRLuTozsrtkNBo2vq9yB_EQV6w98fRBXiGs_p-YzccyvF8jxr3jhoLqjUzKlj3qCYUsKv532wAQ","p":"y-89GNy29yxRlMv_6kTBXwVDBYHybNmSVqzqdM_9NyrVDiyf_jJQwhNYlUUednt2hRtPBH0cCyFeRCaA4MRPAhy7LJOCn2bBbyef00UDqTTJbHKvTSEEi2oNZcg6lBcuLBs_PJaavhI09tn8MsJ-Y2bBlqPQaHhi3mC4Ys2rNOE","q":"tS7Hznl-bMDLR789dzLdRzANWER24xdIPvdyRNA1ZC7Uk1fP7s1Ajs5ygH2pO8Rf4Aa8Hl3-glQ24F1374c72NUk5zfe5t61an3N-Jy9zvYhjWJjddQb-N0wbnNWh_gVudjisP073IQh5ffmMXdyUEIvZ-S6e_NBhT6Bxq8qwoU","dp":"uE8JqtSfT5hwSshsC_ADy7rXrbyZuqKQTWGNq_Dl6tv9HghauMQElMIjRxTmyTIgFYBu06G2nKCVr4YU6A7DUSdiSpEudp3JqInpOmmfO2eHu0mTAWQb1VwNq7Vgq8KfaiFd74Y1aB7QW2D7O2zoCTIvN9PpYOGciVpkindSikE","dq":"blk2kjeG21-0r1b3baDKCnBmwEq6iecFNmxo6SZSTlkDWVYTK2NRHWj5be6a4u7gYcZYTrp6pw_5eD8VLAqWVaLDXhu2I7Cil2BV0URNij54Au9Ymkv8WV8F_0859YgQW2eP8bHaAp1rM-__AEO6mM0mqEUzmwh18Fw4mDTZey0","qi":"rGXdoVH5l4lvXLA6wvB-Tf9XJSd2Ke3Lu7WgCIeX-gl35pxwOvMMiV5MaiZm7iWuXhmszgRbtLvc9YFZJ3ytX7WnyLNnylXRKRzd4VfLaUBEVTORovpHl3s_W-MG-jvC0AW-hlsQ0qDGEY_qFs5P_KQy1v1inTgKKkbQ2xQWIko"}'
+
+cstar-core:
+  grpc:
+    host: localhost
+    port: 9080
+
+# Phase 2
+cstar-admin:
+  grpc:
+    host: localhost
+    port: 9090
+
+logger:
+  levels:
+    com.cstar: DEBUG

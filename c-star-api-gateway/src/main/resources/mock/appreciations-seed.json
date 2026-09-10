@@ -1,0 +1,15 @@
+[
+  { "id": 1,  "giverId": 2,  "receiverId": 3,  "categoryId": 1, "flowerCount": 3, "message": "陪我一起把上线卡点调通，全程耐心又冷静。", "sentAt": { "daysAgo": 0, "hour": 9,  "minute": 12 } },
+  { "id": 2,  "giverId": 4,  "receiverId": 1,  "categoryId": 2, "flowerCount": 2, "message": "你写的迁移手册今天替我省了一小时，谢谢。", "sentAt": { "daysAgo": 0, "hour": 10, "minute": 30 } },
+  { "id": 3,  "giverId": 1,  "receiverId": 9,  "categoryId": 5, "flowerCount": 1, "message": "大家还没醒就接管了故障通报，从头跟到尾。", "sentAt": { "daysAgo": 0, "hour": 11, "minute": 5 } },
+  { "id": 4,  "giverId": 5,  "receiverId": 6,  "categoryId": 3, "flowerCount": 2, "message": "那个缓存思路把 p95 砍了一半，早该这么做。", "sentAt": { "daysAgo": 0, "hour": 12, "minute": 20 } },
+  { "id": 5,  "giverId": 7,  "receiverId": 8,  "categoryId": 4, "flowerCount": 3, "message": "没人安排就主动上了客户电话，把局面压了下来。", "sentAt": { "daysAgo": 0, "hour": 13, "minute": 45 } },
+  { "id": 6,  "giverId": 1,  "receiverId": 10, "categoryId": 1, "flowerCount": 2, "message": "一个挺大的 PR 你一小时内就看了，意见特别到位。", "sentAt": { "daysAgo": 0, "hour": 14, "minute": 10 } },
+  { "id": 7,  "giverId": 9,  "receiverId": 4,  "categoryId": 2, "flowerCount": 1, "message": "测试用例重构后清爽多了，更好读也好维护。", "sentAt": { "daysAgo": 0, "hour": 15, "minute": 0 } },
+  { "id": 8,  "giverId": 3,  "receiverId": 1,  "categoryId": 1, "flowerCount": 3, "message": "陪我一起理 Spanner 表结构，整件事一下就通了。", "sentAt": { "daysAgo": 0, "hour": 15, "minute": 40 } },
+  { "id": 9,  "giverId": 6,  "receiverId": 7,  "categoryId": 3, "flowerCount": 2, "message": "你画的事件管线草图，是我这季度读过最清楚的设计。", "sentAt": { "daysAgo": 0, "hour": 16, "minute": 15 } },
+  { "id": 10, "giverId": 8,  "receiverId": 2,  "categoryId": 4, "flowerCount": 1, "message": "那个棘手的工单你接过去就解决了，没让它到我这里。", "sentAt": { "daysAgo": 1, "hour": 17, "minute": 30 } },
+  { "id": 11, "giverId": 10, "receiverId": 5, "categoryId": 2, "flowerCount": 2, "message": "你写的发布脚本在生产前抓到了配置漂移，好眼力。", "sentAt": { "daysAgo": 2, "hour": 10, "minute": 0 } },
+  { "id": 12, "giverId": 1,  "receiverId": 2, "categoryId": 1, "flowerCount": 3, "message": "没人开口就主动带新人入职，给这一周定了调子。", "sentAt": { "daysAgo": 3, "hour": 14, "minute": 0 } },
+  { "id": 13, "giverId": 4,  "receiverId": 3, "categoryId": 5, "flowerCount": 4, "message": "我请假那场复盘你一个人扛了下来，回来有清楚纪要。", "sentAt": { "daysAgo": 4, "hour": 11, "minute": 20 } }
+]

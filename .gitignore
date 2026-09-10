@@ -1,0 +1,31 @@
+# Gradle
+.gradle/
+build/
+bin/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+out/
+
+# Test resources with local credentials — never commit
+**/src/test/resources/application-test.yml
+**/src/test/resources/application-*.yml
+
+# OS
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Frontend lives in its own repo (ts-wangshiwu01/C-star-frontend)
+c-star-frontend/

@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package cstar.sso;
+
+option java_package = "com.cstar.sso.proto";
+option java_multiple_files = true;
+
+// SSO Login RPC — gateway verifies ALDP JWT, then calls core to lazily
+// create/update the local employee record (ADR-0004).
+// See detail-design 9527-01-SSO-login.md.
+service SsoLoginRpc {
+  rpc login(SsoLoginRequest) returns (SsoLoginResponse);
+}
+
+message SsoLoginRequest {
+  string sso_id = 1;        // ALDP SSO account (gateway extracts from JWT)
+  string display_name = 2;  // Employee name (gateway extracts from JWT)
+}
+
+message SsoLoginResponse {
+  int64  employee_id = 1;    // Local employee.id
+  string display_name = 2;   // Synced name (input on first login; possibly updated on revisit)
+  bool   is_first_login = 3; // true = created this call; false = already existed
+  SsoLoginErrorCode error_code = 4;
+  string error_message = 5;  // Empty when error_code = SSO_OK
+}
+
+enum SsoLoginErrorCode {
+  SSO_OK = 0;
+  SSO_INVALID_JWT = 1;   // JWT verify failed / sso_id or display_name missing
+  SSO_INTERNAL = 2;      // DB write failure / internal error
+  // 3 = SSO_RATE_LIMITED (reserved, future rate limiting)
+  // 4 = SSO_EMPLOYEE_SUSPENDED (reserved, Phase 2 admin suspension)
+}
